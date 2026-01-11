@@ -35,16 +35,16 @@ const Navbar = () => {
             <div className="flex-shrink-0">
               <Link href="/" className="flex items-center group">
                 <div className="flex items-center justify-center w-10 h-10 mr-3 bg-white rounded-full shadow-md overflow-hidden">
-                  <Image 
-                    src="/logo.png" 
-                    alt="AgroMitra Logo" 
+                  <Image
+                    src="/logo.png"
+                    alt="AgroMitra Logo"
                     width={32}
                     height={32}
                     className="object-contain"
                   />
                 </div>
                 <span className="text-xl font-bold text-gray-800">
-                  AgroMitra
+                  {language === 'hi' ? 'एग्रोमित्र' : 'AgroMitra'}
                 </span>
               </Link>
             </div>
@@ -55,11 +55,10 @@ const Navbar = () => {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                    isActive(item.href)
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isActive(item.href)
                       ? "bg-blue-100 text-blue-700"
                       : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   {item.name}
                 </Link>
@@ -109,11 +108,10 @@ const Navbar = () => {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                    isActive(item.href)
+                  className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive(item.href)
                       ? "bg-blue-100 text-blue-700"
                       : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}

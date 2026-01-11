@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { componentClasses } from '@/lib/theme';
 import { StatsCard, InfoCard, InstructionCard } from '@/components/ui/Cards';
+import { getUIText, speakInEnglish } from '@/lib/uiTranslations';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CommunityPost {
   id: string;
@@ -33,30 +35,45 @@ export default function CommunityPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const { language } = useLanguage();
 
-  // Voice synthesis function
+  // Language code to voice locale mapping
+  const languageVoiceMap: Record<string, string> = {
+    'en': 'en-US',
+    'hi': 'hi-IN',
+    'bn': 'bn-IN',
+    'te': 'te-IN',
+    'mr': 'mr-IN',
+    'ta': 'ta-IN',
+  };
+
+  // Voice synthesis function (uses selected language)
   const speakText = (text: string) => {
     if (!isVoiceEnabled || !window.speechSynthesis) return;
-    
+
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-    
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
+    const voiceLocale = languageVoiceMap[language] || 'en-US';
+    utterance.lang = voiceLocale;
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 0.8;
-    
-    // Try to find a clear English voice
+
+    // Try to find a voice for the selected language
     const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(voice => 
-      voice.lang.includes('en') && 
+    const languageVoice = voices.find(voice =>
+      voice.lang === voiceLocale || voice.lang.startsWith(language)
+    ) || voices.find(voice =>
+      voice.lang.includes(language) &&
       (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-    );
-    if (englishVoice) {
-      utterance.voice = englishVoice;
+    ) || voices.find(voice => voice.lang.includes('en'));
+
+    if (languageVoice) {
+      utterance.voice = languageVoice;
     }
-    
+
     window.speechSynthesis.speak(utterance);
   };
 
@@ -65,17 +82,17 @@ export default function CommunityPage() {
     if (posts.length === 0) {
       return 'No community posts available.';
     }
-    
+
     let announcement = `Community feed has ${posts.length} posts. `;
-    
+
     posts.slice(0, 3).forEach((post, index) => {
       announcement += `Post ${index + 1}: ${post.author} posted about ${post.title}. ${post.content.slice(0, 100)}... `;
     });
-    
+
     if (posts.length > 3) {
       announcement += `And ${posts.length - 3} more posts available.`;
     }
-    
+
     return announcement;
   };
 
@@ -177,8 +194,8 @@ export default function CommunityPage() {
     helpfulAnswers: 923,
   };
 
-  const filteredPosts = selectedCategory === 'all' 
-    ? posts 
+  const filteredPosts = selectedCategory === 'all'
+    ? posts
     : posts.filter(post => post.category.toLowerCase().includes(selectedCategory.toLowerCase()));
 
   // Effect to speak posts when page loads
@@ -224,9 +241,14 @@ export default function CommunityPage() {
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
             <div>
-              <h1 className={`${componentClasses.text.h1} mb-4`}>Farming Community</h1>
+              <h1 className={`${componentClasses.text.h1} mb-4`}>
+                {language === 'hi' ? 'किसान समुदाय' : 'Farming Community'}
+              </h1>
               <p className={`${componentClasses.text.bodyLarge} max-w-2xl`}>
-                Connect with fellow farmers, share knowledge, and grow together in our thriving agricultural community.
+                {language === 'hi'
+                  ? 'साथी किसानों से जुड़ें, ज्ञान साझा करें, और हमारे समृद्ध कृषि समुदाय में एक साथ बढ़ें।'
+                  : 'Connect with fellow farmers, share knowledge, and grow together in our thriving agricultural community.'
+                }
               </p>
             </div>
             <div className="flex gap-3 flex-wrap">
@@ -234,15 +256,15 @@ export default function CommunityPage() {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Create Post
+                {language === 'hi' ? 'पोस्ट बनाएं' : 'Create Post'}
               </button>
               <button className={componentClasses.button.outline}>
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                Join Groups
+                {language === 'hi' ? 'ग्रुप में शामिल हों' : 'Join Groups'}
               </button>
-              
+
               {/* Voice Control Buttons */}
               {activeTab === 'feed' && (
                 <>
@@ -256,14 +278,13 @@ export default function CommunityPage() {
                     </svg>
                     🔊 Read Posts
                   </button>
-                  
+
                   <button
                     onClick={toggleVoice}
-                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 hover:scale-105 shadow-lg border flex items-center gap-2 ${
-                      isVoiceEnabled 
-                        ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-600 dark:text-orange-300 border-orange-300/20' 
-                        : 'bg-gray-500/20 hover:bg-gray-500/30 text-gray-600 dark:text-gray-300 border-gray-300/20'
-                    }`}
+                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 hover:scale-105 shadow-lg border flex items-center gap-2 ${isVoiceEnabled
+                      ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-600 dark:text-orange-300 border-orange-300/20'
+                      : 'bg-gray-500/20 hover:bg-gray-500/30 text-gray-600 dark:text-gray-300 border-gray-300/20'
+                      }`}
                     title={isVoiceEnabled ? 'Disable voice' : 'Enable voice'}
                   >
                     {isVoiceEnabled ? (
@@ -281,7 +302,7 @@ export default function CommunityPage() {
                 </>
               )}
             </div>
-            
+
             {/* Voice Status Indicator */}
             {isLoading && activeTab === 'feed' && (
               <div className="flex justify-center items-center mt-4 text-gray-600 dark:text-gray-400">
@@ -292,7 +313,7 @@ export default function CommunityPage() {
                 Loading voice system...
               </div>
             )}
-            
+
             {isVoiceEnabled && !isLoading && activeTab === 'feed' && (
               <div className="flex justify-center items-center mt-4 text-green-600 dark:text-green-400">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,11 +377,10 @@ export default function CommunityPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
-                className={`px-4 py-2 rounded-lg font-medium capitalize transition-colors ${
-                  activeTab === tab
-                    ? 'bg-green-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium capitalize transition-colors ${activeTab === tab
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  }`}
               >
                 {tab}
               </button>
@@ -410,10 +430,10 @@ export default function CommunityPage() {
                               {post.category}
                             </span>
                           </div>
-                          
+
                           <h4 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h4>
                           <p className="text-gray-700 mb-4">{post.content}</p>
-                          
+
                           <div className="flex flex-wrap gap-2 mb-4">
                             {post.tags.map((tag) => (
                               <span
@@ -424,7 +444,7 @@ export default function CommunityPage() {
                               </span>
                             ))}
                           </div>
-                          
+
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                               <button
@@ -514,11 +534,10 @@ export default function CommunityPage() {
                     <span>{group.recentActivity}</span>
                   </div>
                   <button
-                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                      group.isJoined
-                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
+                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${group.isJoined
+                      ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
                   >
                     {group.isJoined ? 'Joined' : 'Join Group'}
                   </button>

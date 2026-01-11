@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { componentClasses } from '@/lib/theme';
 import { StatsCard, InfoCard, InstructionCard } from '@/components/ui/Cards';
-import { uiTranslations, getUIText, speakInEnglish } from '@/lib/uiTranslations';
+import { uiTranslations, getUIText, speakInLanguage, speakInEnglish } from '@/lib/uiTranslations';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Task {
@@ -58,37 +58,50 @@ export default function TasksPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { language, toggleLanguage } = useLanguage();
 
-  // Speak individual task (always in English)
+  // Speak individual task (uses selected language)
   const speakTask = (task: Task) => {
     if (!isVoiceEnabled) return;
-    const taskText = `${task.category} task: ${task.title}. Status: ${task.status}. Priority: ${task.priority}`;
-    speakInEnglish(taskText);
+    const taskTextEn = `${task.category} task: ${task.title}. Status: ${task.status}. Priority: ${task.priority}`;
+    const taskTextHi = `${task.category} कार्य: ${task.title}. स्थिति: ${task.status}. प्राथमिकता: ${task.priority}`;
+    speakInLanguage(language === 'hi' ? taskTextHi : taskTextEn, language);
   };
 
-  // Voice announcement on page load (always in English)
+  // Voice announcement on page load (uses selected language)
   useEffect(() => {
     if (isVoiceEnabled) {
       const timer = setTimeout(() => {
-        speakInEnglish('Your farm tasks are as follows');
-        
+        const announcementText = language === 'hi'
+          ? 'आपके खेत के कार्य इस प्रकार हैं'
+          : 'Your farm tasks are as follows';
+        speakInLanguage(announcementText, language);
+
         // Announce task count and categories
         setTimeout(() => {
-          const filteredTasks = tasks.filter(task => 
+          const filteredTasks = tasks.filter(task =>
             (selectedFilter === 'all' || task.status === selectedFilter) &&
             (selectedCategory === 'all' || task.category === selectedCategory)
           );
-          
+
           if (filteredTasks.length > 0) {
-            speakInEnglish(`You have ${filteredTasks.length} tasks`);
-            
+            const countText = language === 'hi'
+              ? `आपके पास ${filteredTasks.length} कार्य हैं`
+              : `You have ${filteredTasks.length} tasks`;
+            speakInLanguage(countText, language);
+
             // Announce first 3 task categories
             filteredTasks.slice(0, 3).forEach((task, index) => {
               setTimeout(() => {
-                speakInEnglish(`${task.category} task: ${task.title}. Status: ${task.status}`);
+                const taskText = language === 'hi'
+                  ? `${task.category} कार्य: ${task.title}. स्थिति: ${task.status}`
+                  : `${task.category} task: ${task.title}. Status: ${task.status}`;
+                speakInLanguage(taskText, language);
               }, (index + 1) * 2500);
             });
           } else {
-            speakInEnglish('No tasks available at the moment');
+            const noTaskText = language === 'hi'
+              ? 'अभी कोई कार्य उपलब्ध नहीं है'
+              : 'No tasks available at the moment';
+            speakInLanguage(noTaskText, language);
           }
         }, 2000);
       }, 1000);
@@ -96,7 +109,7 @@ export default function TasksPage() {
       return () => clearTimeout(timer);
     }
     setIsLoading(false);
-  }, [isVoiceEnabled, selectedFilter, selectedCategory]);
+  }, [isVoiceEnabled, selectedFilter, selectedCategory, language]);
 
   // Function to toggle voice
   const toggleVoice = () => {
@@ -106,10 +119,13 @@ export default function TasksPage() {
     }
   };
 
-  // Function to repeat task announcement (always in English)
+  // Function to repeat task announcement (uses selected language)
   const repeatAnnouncement = () => {
     if (isVoiceEnabled) {
-      speakInEnglish('Your farm tasks are as follows');
+      const text = language === 'hi'
+        ? 'आपके खेत के कार्य इस प्रकार हैं'
+        : 'Your farm tasks are as follows';
+      speakInLanguage(text, language);
     }
   };
 
@@ -268,11 +284,11 @@ export default function TasksPage() {
                 />
               </svg>
             </div>
-            
+
             <h1 className="mb-4 text-4xl font-bold tracking-tight text-gray-800 md:text-5xl">
               {getUIText('title', language, 'tasks')}
             </h1>
-            
+
             <p className="max-w-3xl mx-auto mb-8 text-lg leading-relaxed text-gray-600">
               {getUIText('description', language, 'tasks')}
             </p>
@@ -281,20 +297,22 @@ export default function TasksPage() {
             <div className="flex justify-center gap-4 mb-8">
               <button
                 onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
-                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                  isVoiceEnabled 
-                    ? 'bg-blue-500 text-white shadow-lg' 
-                    : 'bg-white/10 text-blue-200 border border-white/20'
-                }`}
+                className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${isVoiceEnabled
+                  ? 'bg-blue-500 text-white shadow-lg'
+                  : 'bg-white/10 text-blue-200 border border-white/20'
+                  }`}
               >
-                {isVoiceEnabled ? '🔊 Voice On' : '🔇 Voice Off'}
+                {isVoiceEnabled
+                  ? (language === 'hi' ? '🔊 आवाज़ चालू' : '🔊 Voice On')
+                  : (language === 'hi' ? '🔇 आवाज़ बंद' : '🔇 Voice Off')
+                }
               </button>
               {isVoiceEnabled && (
                 <button
                   onClick={repeatAnnouncement}
                   className="px-6 py-3 font-medium text-orange-200 transition-all duration-300 border bg-white/10 border-white/20 rounded-xl hover:bg-white/20"
                 >
-                  🗣️ Repeat Tasks
+                  {language === 'hi' ? '🗣️ कार्य दोहराएं' : '🗣️ Repeat Tasks'}
                 </button>
               )}
             </div>
@@ -315,7 +333,7 @@ export default function TasksPage() {
                 </svg>
                 {getUIText('filterTasks', language, 'tasks')}
               </button>
-              
+
               {/* Voice Control Buttons */}
               <button
                 onClick={repeatAnnouncement}
@@ -327,14 +345,13 @@ export default function TasksPage() {
                 </svg>
                 🔊 Speak Tasks
               </button>
-              
+
               <button
                 onClick={toggleVoice}
-                className={`px-6 py-3 text-lg font-semibold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg border flex items-center gap-3 ${
-                  isVoiceEnabled 
-                    ? 'bg-orange-50 hover:bg-orange-100 text-orange-600 border-orange-200' 
-                    : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border-gray-200'
-                }`}
+                className={`px-6 py-3 text-lg font-semibold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg border flex items-center gap-3 ${isVoiceEnabled
+                  ? 'bg-orange-50 hover:bg-orange-100 text-orange-600 border-orange-200'
+                  : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border-gray-200'
+                  }`}
                 title={isVoiceEnabled ? 'Disable voice' : 'Enable voice'}
               >
                 {isVoiceEnabled ? (
@@ -350,7 +367,7 @@ export default function TasksPage() {
                 {isVoiceEnabled ? 'Voice ON' : 'Voice OFF'}
               </button>
             </div>
-            
+
 
             {/* Voice Status Indicator */}
             {isLoading && (
@@ -362,7 +379,7 @@ export default function TasksPage() {
                 Loading voice system...
               </div>
             )}
-            
+
             {isVoiceEnabled && !isLoading && (
               <div className="flex items-center justify-center mt-4 text-green-600">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -385,8 +402,8 @@ export default function TasksPage() {
                 </div>
                 <span className="text-3xl font-bold text-gray-800">{taskStats.total}</span>
               </div>
-              <h3 className="mb-1 font-semibold text-blue-700">Total Tasks</h3>
-              <p className="text-sm text-gray-600">All assigned tasks</p>
+              <h3 className="mb-1 font-semibold text-blue-700">{language === 'hi' ? 'कुल कार्य' : 'Total Tasks'}</h3>
+              <p className="text-sm text-gray-600">{language === 'hi' ? 'सभी सौंपे गए कार्य' : 'All assigned tasks'}</p>
             </div>
 
             <div className="p-6 transition-all duration-300 border shadow-lg bg-white/90 backdrop-blur-lg rounded-2xl border-gray-200 hover:bg-white hover:border-gray-300">
@@ -398,8 +415,8 @@ export default function TasksPage() {
                 </div>
                 <span className="text-3xl font-bold text-gray-800">{taskStats.pending}</span>
               </div>
-              <h3 className="mb-1 font-semibold text-yellow-700">Pending</h3>
-              <p className="text-sm text-gray-600">Need attention</p>
+              <h3 className="mb-1 font-semibold text-yellow-700">{language === 'hi' ? 'लंबित' : 'Pending'}</h3>
+              <p className="text-sm text-gray-600">{language === 'hi' ? 'ध्यान देने योग्य' : 'Need attention'}</p>
             </div>
 
             <div className="p-6 transition-all duration-300 border shadow-lg bg-white/90 backdrop-blur-lg rounded-2xl border-gray-200 hover:bg-white hover:border-gray-300">
@@ -411,8 +428,8 @@ export default function TasksPage() {
                 </div>
                 <span className="text-3xl font-bold text-gray-800">{taskStats.completed}</span>
               </div>
-              <h3 className="mb-1 font-semibold text-green-700">Completed</h3>
-              <p className="text-sm text-gray-600">Today</p>
+              <h3 className="mb-1 font-semibold text-green-700">{language === 'hi' ? 'पूर्ण' : 'Completed'}</h3>
+              <p className="text-sm text-gray-600">{language === 'hi' ? 'आज' : 'Today'}</p>
             </div>
 
             <div className="p-6 transition-all duration-300 border shadow-lg bg-white/90 backdrop-blur-lg rounded-2xl border-gray-200 hover:bg-white hover:border-gray-300">
@@ -424,8 +441,8 @@ export default function TasksPage() {
                 </div>
                 <span className="text-3xl font-bold text-gray-800">{taskStats.overdue}</span>
               </div>
-              <h3 className="mb-1 font-semibold text-red-700">Overdue</h3>
-              <p className="text-sm text-gray-600">Urgent attention</p>
+              <h3 className="mb-1 font-semibold text-red-700">{language === 'hi' ? 'विलंबित' : 'Overdue'}</h3>
+              <p className="text-sm text-gray-600">{language === 'hi' ? 'तुरंत ध्यान दें' : 'Urgent attention'}</p>
             </div>
           </div>
 
@@ -439,7 +456,7 @@ export default function TasksPage() {
               </div>
               <h2 className="text-2xl font-bold text-gray-800">Search & Filter Tasks</h2>
             </div>
-            
+
             {/* Search Bar */}
             <div className="mb-6">
               <div className="relative">
@@ -457,7 +474,7 @@ export default function TasksPage() {
                 />
               </div>
             </div>
-            
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
               <div>
                 <label className="block mb-3 text-sm font-medium text-gray-700">Status Filter</label>
@@ -502,7 +519,7 @@ export default function TasksPage() {
                   <option value="title">Title</option>
                 </select>
               </div>
-              
+
               <div className="flex items-end">
                 <button
                   onClick={() => {
@@ -516,7 +533,7 @@ export default function TasksPage() {
                   Clear All
                 </button>
               </div>
-              
+
               <div className="flex items-center justify-center px-4 text-gray-800 border bg-green-50 rounded-xl border-green-200">
                 <span className="text-lg font-semibold">
                   {filteredTasks.length} tasks
@@ -530,14 +547,14 @@ export default function TasksPage() {
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 rounded-lg bg-green-100">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />  
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-800">
                 {selectedFilter === 'all' ? 'All' : selectedFilter.charAt(0).toUpperCase() + selectedFilter.slice(1)} Tasks ({filteredTasks.length})
               </h2>
             </div>
-            
+
             <div className="space-y-4">
               {filteredTasks.map((task) => (
                 <div key={task.id} className="p-6 transition-all duration-300 border shadow-lg bg-white/90 backdrop-blur-lg rounded-xl border-gray-200 hover:bg-white hover:border-gray-300">
@@ -549,11 +566,10 @@ export default function TasksPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
                           <h3 className="text-xl font-semibold text-gray-800">{task.title}</h3>
-                          <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            task.priority === 'high' ? 'bg-red-100 text-red-800 border border-red-300' :
+                          <span className={`px-3 py-1 text-xs font-medium rounded-full ${task.priority === 'high' ? 'bg-red-100 text-red-800 border border-red-300' :
                             task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' :
-                            'bg-green-100 text-green-800 border border-green-300'
-                          }`}>
+                              'bg-green-100 text-green-800 border border-green-300'
+                            }`}>
                             {task.priority.toUpperCase()}
                           </span>
                           <div className="flex items-center text-blue-700">
@@ -562,7 +578,7 @@ export default function TasksPage() {
                           </div>
                         </div>
                         <p className="mb-4 text-lg leading-relaxed text-gray-700">{task.description}</p>
-                        
+
                         <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
                           <div className="flex items-center px-3 py-2 text-green-700 border rounded-lg bg-green-50 border-green-200">
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -634,7 +650,7 @@ export default function TasksPage() {
                   </div>
                 </div>
               ))}
-              
+
               {filteredTasks.length === 0 && (
                 <div className="py-12 text-center">
                   <div className="inline-block p-6 mb-4 bg-white/80 backdrop-blur-lg rounded-2xl border border-gray-200">
@@ -658,7 +674,7 @@ export default function TasksPage() {
 
         </div>
       </div>
-      
+
       {/* Floating Action Button */}
       <div className="fixed z-50 bottom-8 right-8">
         <button

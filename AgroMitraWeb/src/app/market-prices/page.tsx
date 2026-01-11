@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { componentClasses } from '@/lib/theme';
 import { StatsCard, InfoCard, InstructionCard } from '@/components/ui/Cards';
-import { uiTranslations, getUIText, speakInEnglish } from '@/lib/uiTranslations';
+import { uiTranslations, getUIText, speakInLanguage, speakInEnglish } from '@/lib/uiTranslations';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MarketPrice {
@@ -74,15 +74,15 @@ export default function MarketPricesPage() {
 
     try {
       const params = new URLSearchParams();
-      
+
       if (shouldScrape) {
         params.append('scrape', 'true');
       }
-      
+
       if (selectedState !== 'all') {
         params.append('state', selectedState);
       }
-      
+
       if (selectedCategory !== 'all') {
         params.append('category', selectedCategory);
       }
@@ -90,7 +90,7 @@ export default function MarketPricesPage() {
       // Simulate progress updates during scraping
       if (shouldScrape) {
         setScrapingStatus('Initializing web scraper...');
-        
+
         // Setup progress tracking via polling or websocket in real implementation
         const progressInterval = setInterval(() => {
           setScrapingProgress(prev => {
@@ -117,7 +117,7 @@ export default function MarketPricesPage() {
             scrapedFrom: result.scrapedFrom || [],
             scrapingTime: result.scrapingTime || 0
           });
-          
+
           if (result.errors && result.errors.length > 0) {
             setError(`Warning: ${result.errors.join(', ')}`);
           }
@@ -226,22 +226,33 @@ export default function MarketPricesPage() {
     activeAlerts: priceAlerts.filter(a => a.isActive).length,
   };
 
-  // Voice announcement on page load
+  // Voice announcement on page load (uses selected language)
   useEffect(() => {
     if (isVoiceEnabled) {
       const timer = setTimeout(() => {
-        speakInEnglish('Welcome to Market Prices. Here are the latest commodity prices.');
-        
+        const welcomeText = language === 'hi'
+          ? 'बाज़ार मूल्य में आपका स्वागत है। यहाँ नवीनतम कीमतें हैं।'
+          : 'Welcome to Market Prices. Here are the latest commodity prices.';
+        speakInLanguage(welcomeText, language);
+
         // Announce price count
         setTimeout(() => {
-          speakInEnglish(`Found ${sortedPrices.length} market prices available.`);
-          
+          const countText = language === 'hi'
+            ? `${sortedPrices.length} बाज़ार मूल्य उपलब्ध हैं।`
+            : `Found ${sortedPrices.length} market prices available.`;
+          speakInLanguage(countText, language);
+
           // Announce first 3 prices
           sortedPrices.slice(0, 3).forEach((price, index) => {
             setTimeout(() => {
-              const changeText = price.change > 0 ? `up ${Math.abs(price.change)}` : 
-                               price.change < 0 ? `down ${Math.abs(price.change)}` : 'unchanged';
-              speakInEnglish(`${price.commodity} is priced at ${price.currentPrice.toFixed(2)} ${price.unit}, ${changeText}`);
+              const changeTextEn = price.change > 0 ? `up ${Math.abs(price.change)}` :
+                price.change < 0 ? `down ${Math.abs(price.change)}` : 'unchanged';
+              const changeTextHi = price.change > 0 ? `बढ़ा ${Math.abs(price.change)}` :
+                price.change < 0 ? `घटा ${Math.abs(price.change)}` : 'स्थिर';
+              const priceText = language === 'hi'
+                ? `${price.commodity} की कीमत ${price.currentPrice.toFixed(2)} ${price.unit} है, ${changeTextHi}`
+                : `${price.commodity} is priced at ${price.currentPrice.toFixed(2)} ${price.unit}, ${changeTextEn}`;
+              speakInLanguage(priceText, language);
             }, (index + 1) * 3000);
           });
         }, 2000);
@@ -253,9 +264,14 @@ export default function MarketPricesPage() {
 
   const speakPriceInfo = (price: MarketPrice) => {
     if (isVoiceEnabled) {
-      const changeText = price.change > 0 ? `up ${Math.abs(price.change)}` : 
-                        price.change < 0 ? `down ${Math.abs(price.change)}` : 'unchanged';
-      speakInEnglish(`${price.commodity} is priced at ${price.currentPrice.toFixed(2)} ${price.unit}, ${changeText}`);
+      const changeTextEn = price.change > 0 ? `up ${Math.abs(price.change)}` :
+        price.change < 0 ? `down ${Math.abs(price.change)}` : 'unchanged';
+      const changeTextHi = price.change > 0 ? `बढ़ा ${Math.abs(price.change)}` :
+        price.change < 0 ? `घटा ${Math.abs(price.change)}` : 'स्थिर';
+      const priceText = language === 'hi'
+        ? `${price.commodity} की कीमत ${price.currentPrice.toFixed(2)} ${price.unit} है, ${changeTextHi}`
+        : `${price.commodity} is priced at ${price.currentPrice.toFixed(2)} ${price.unit}, ${changeTextEn}`;
+      speakInLanguage(priceText, language);
     }
   };
 
@@ -295,20 +311,19 @@ export default function MarketPricesPage() {
                 <p className={`${componentClasses.text.bodyLarge} max-w-2xl`}>
                   {getUIText('description', language, 'market')}
                 </p>
-              
-              {/* Voice Controls */}
-              <div className="flex gap-3 mt-4">
-                <button
-                  onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                    isVoiceEnabled 
-                      ? 'bg-green-500 text-white shadow-lg' 
-                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                  }`}
-                >
-                  {isVoiceEnabled ? '🔊 Voice On' : '🔇 Voice Off'}
-                </button>
-              </div>
+
+                {/* Voice Controls */}
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${isVoiceEnabled
+                        ? 'bg-green-500 text-white shadow-lg'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      }`}
+                  >
+                    {isVoiceEnabled ? '🔊 Voice On' : '🔇 Voice Off'}
+                  </button>
+                </div>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -321,7 +336,7 @@ export default function MarketPricesPage() {
                 </svg>
                 {showAlerts ? 'Hide' : 'Show'} Alerts ({marketStats.activeAlerts})
               </button>
-              <button 
+              <button
                 onClick={() => fetchMarketPrices(true)}
                 disabled={loading}
                 className={`${componentClasses.button.primary} disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -329,7 +344,7 @@ export default function MarketPricesPage() {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                  {isScrapingActive ? 'Scraping...' : loading ? 'Loading...' : '🌐 Scrape Live Prices'}
+                {isScrapingActive ? 'Scraping...' : loading ? 'Loading...' : '🌐 Scrape Live Prices'}
               </button>
               <button className={componentClasses.button.outlinePrimary}>
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,7 +470,7 @@ export default function MarketPricesPage() {
                 </select>
               </div>
               <div className="flex items-end">
-                <button 
+                <button
                   onClick={() => fetchMarketPrices(true)}
                   disabled={loading}
                   className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -483,7 +498,7 @@ export default function MarketPricesPage() {
                   <span className="text-sm font-bold text-blue-600">{scrapingProgress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
+                  <div
                     className="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full transition-all duration-300 ease-out"
                     style={{ width: `${scrapingProgress}%` }}
                   ></div>
@@ -633,104 +648,102 @@ export default function MarketPricesPage() {
                   </thead>
                   <tbody>
                     {sortedPrices.map((price, index) => (
-                    <tr key={price.id} className={`border-b border-gray-100 hover:bg-gradient-to-r hover:from-green-50/50 hover:to-blue-50/50 transition-all duration-200 hover:shadow-sm ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}>
-                      <td className="py-6 px-6">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="font-bold text-gray-900 text-lg">{price.commodity}</div>
-                            {price.scrapedFrom && (
-                              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full" title={`Scraped from ${price.scrapedFrom}`}>
-                                🌐 LIVE
-                              </span>
-                            )}
-                            {!price.scrapedFrom && (
-                              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full" title="Sample data">
-                                📊 SAMPLE
-                              </span>
-                            )}
-                          </div>
-                          <div className={`${componentClasses.badge.purple} inline-block font-medium`}>{price.quality}</div>
-                        </div>
-                      </td>
-                      <td className="py-6 px-6">
-                        <div className="font-bold text-2xl text-gray-900 mb-1">
-                          ₹{price.currentPrice.toLocaleString('en-IN')}
-                        </div>
-                        <div className="text-sm text-gray-600 font-medium">{price.unit}</div>
-                        {(price.minPrice || price.maxPrice) && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            Range: ₹{price.minPrice?.toLocaleString('en-IN')} - ₹{price.maxPrice?.toLocaleString('en-IN')}
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-6 px-6">
-                        <div className={`flex items-center font-bold ${
-                          price.change > 0 ? 'text-green-600' : price.change < 0 ? 'text-red-600' : 'text-gray-600'
-                        }`}>
-                          {getTrendIcon(price.trend)}
-                          <div className="ml-3">
-                            <div className="font-bold text-lg">
-                              {price.change > 0 ? '+' : ''}₹{Math.abs(price.change).toLocaleString('en-IN')}
+                      <tr key={price.id} className={`border-b border-gray-100 hover:bg-gradient-to-r hover:from-green-50/50 hover:to-blue-50/50 transition-all duration-200 hover:shadow-sm ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}>
+                        <td className="py-6 px-6">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="font-bold text-gray-900 text-lg">{price.commodity}</div>
+                              {price.scrapedFrom && (
+                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full" title={`Scraped from ${price.scrapedFrom}`}>
+                                  🌐 LIVE
+                                </span>
+                              )}
+                              {!price.scrapedFrom && (
+                                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full" title="Sample data">
+                                  📊 SAMPLE
+                                </span>
+                              )}
                             </div>
-                            <div className="text-sm font-semibold">
-                              ({price.changePercent > 0 ? '+' : ''}{price.changePercent.toFixed(1)}%)
-                            </div>
+                            <div className={`${componentClasses.badge.purple} inline-block font-medium`}>{price.quality}</div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-6 px-6">
-                        <div className="text-sm font-bold text-gray-900 mb-1">{price.market}</div>
-                        {price.state && (
-                          <div className="text-xs text-gray-600 font-medium">{price.state}</div>
-                        )}
-                        {price.grade && (
-                          <div className="text-xs text-blue-600 font-medium">Grade: {price.grade}</div>
-                        )}
-                      </td>
-                      <td className="py-6 px-6">
-                        <div className="text-sm font-bold text-gray-900 mb-1">{price.volume}</div>
-                        <div className="text-xs text-gray-600 font-medium">Traded today</div>
-                      </td>
-                      <td className="py-6 px-6">
-                        <span className={`${
-                          price.forecast === 'bullish' 
-                            ? 'bg-green-100 text-green-800 border border-green-200' 
-                            : price.forecast === 'bearish' 
-                            ? 'bg-red-100 text-red-800 border border-red-200' 
-                            : 'bg-gray-100 text-gray-800 border border-gray-200'
-                        } px-3 py-2 rounded-full text-xs font-bold capitalize inline-flex items-center`}>
-                          {price.forecast === 'bullish' ? '📈 ' : price.forecast === 'bearish' ? '📉 ' : '➡️ '}
-                          {price.forecast}
-                        </span>
-                      </td>
-                      <td className="py-6 px-6">
-                        <div className="text-sm text-gray-900 font-bold mb-1">{price.lastUpdated}</div>
-                        <div className="text-xs text-gray-600 font-medium">Last update</div>
-                      </td>
-                      <td className="py-5 px-6 text-center">
-                        <div className="flex gap-2 justify-center">
-                          {isVoiceEnabled && (
-                            <button 
-                              onClick={() => speakPriceInfo(price)}
-                              className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-all duration-200 text-sm"
-                              title="Speak price info"
-                            >
-                              🔊
-                            </button>
+                        </td>
+                        <td className="py-6 px-6">
+                          <div className="font-bold text-2xl text-gray-900 mb-1">
+                            ₹{price.currentPrice.toLocaleString('en-IN')}
+                          </div>
+                          <div className="text-sm text-gray-600 font-medium">{price.unit}</div>
+                          {(price.minPrice || price.maxPrice) && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              Range: ₹{price.minPrice?.toLocaleString('en-IN')} - ₹{price.maxPrice?.toLocaleString('en-IN')}
+                            </div>
                           )}
-                          <button className={`${componentClasses.button.small} ${componentClasses.button.outline}`}>
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5-5 5-5h-5m-6 0H4l5 5-5 5h5" />
-                            </svg>
-                            Alert
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </td>
+                        <td className="py-6 px-6">
+                          <div className={`flex items-center font-bold ${price.change > 0 ? 'text-green-600' : price.change < 0 ? 'text-red-600' : 'text-gray-600'
+                            }`}>
+                            {getTrendIcon(price.trend)}
+                            <div className="ml-3">
+                              <div className="font-bold text-lg">
+                                {price.change > 0 ? '+' : ''}₹{Math.abs(price.change).toLocaleString('en-IN')}
+                              </div>
+                              <div className="text-sm font-semibold">
+                                ({price.changePercent > 0 ? '+' : ''}{price.changePercent.toFixed(1)}%)
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-6 px-6">
+                          <div className="text-sm font-bold text-gray-900 mb-1">{price.market}</div>
+                          {price.state && (
+                            <div className="text-xs text-gray-600 font-medium">{price.state}</div>
+                          )}
+                          {price.grade && (
+                            <div className="text-xs text-blue-600 font-medium">Grade: {price.grade}</div>
+                          )}
+                        </td>
+                        <td className="py-6 px-6">
+                          <div className="text-sm font-bold text-gray-900 mb-1">{price.volume}</div>
+                          <div className="text-xs text-gray-600 font-medium">Traded today</div>
+                        </td>
+                        <td className="py-6 px-6">
+                          <span className={`${price.forecast === 'bullish'
+                              ? 'bg-green-100 text-green-800 border border-green-200'
+                              : price.forecast === 'bearish'
+                                ? 'bg-red-100 text-red-800 border border-red-200'
+                                : 'bg-gray-100 text-gray-800 border border-gray-200'
+                            } px-3 py-2 rounded-full text-xs font-bold capitalize inline-flex items-center`}>
+                            {price.forecast === 'bullish' ? '📈 ' : price.forecast === 'bearish' ? '📉 ' : '➡️ '}
+                            {price.forecast}
+                          </span>
+                        </td>
+                        <td className="py-6 px-6">
+                          <div className="text-sm text-gray-900 font-bold mb-1">{price.lastUpdated}</div>
+                          <div className="text-xs text-gray-600 font-medium">Last update</div>
+                        </td>
+                        <td className="py-5 px-6 text-center">
+                          <div className="flex gap-2 justify-center">
+                            {isVoiceEnabled && (
+                              <button
+                                onClick={() => speakPriceInfo(price)}
+                                className="px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-all duration-200 text-sm"
+                                title="Speak price info"
+                              >
+                                🔊
+                              </button>
+                            )}
+                            <button className={`${componentClasses.button.small} ${componentClasses.button.outline}`}>
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5-5 5-5h-5m-6 0H4l5 5-5 5h5" />
+                              </svg>
+                              Alert
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </InfoCard>
 

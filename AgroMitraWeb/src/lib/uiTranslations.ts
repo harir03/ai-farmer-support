@@ -114,7 +114,7 @@ const englishUI: UITranslations = {
     searchSchemes: "Search schemes...",
     allCategories: "All Categories",
     subsidies: "Subsidies",
-    loans: "Loans", 
+    loans: "Loans",
     insurance: "Insurance",
     training: "Training",
     equipment: "Equipment",
@@ -347,45 +347,73 @@ export const getUIText = (
   fallback?: string
 ): string => {
   const translations = uiTranslations[language];
-  
+
   if (section && translations[section] && translations[section][key]) {
     return translations[section][key];
   }
-  
+
   // Try common section as fallback
   if (translations.common[key]) {
     return translations.common[key];
   }
-  
+
   // Return fallback or key if nothing found
   return fallback || key;
 };
 
-// TTS function that always uses English
-export const speakInEnglish = async (text: string) => {
+// Language code to voice locale mapping for Indian languages
+const languageVoiceMap: Record<string, string> = {
+  'en': 'en-US',
+  'hi': 'hi-IN',
+  'bn': 'bn-IN',
+  'te': 'te-IN',
+  'mr': 'mr-IN',
+  'ta': 'ta-IN',
+  'gu': 'gu-IN',
+  'kn': 'kn-IN',
+  'ml': 'ml-IN',
+  'pa': 'pa-IN',
+};
+
+// TTS function that speaks in the selected language
+export const speakInLanguage = async (text: string, languageCode: string = 'en') => {
   if (!window.speechSynthesis) return;
-  
+
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
-  
+
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'en-US';
+  const voiceLocale = languageVoiceMap[languageCode] || 'en-US';
+  utterance.lang = voiceLocale;
   utterance.rate = 0.9;
   utterance.pitch = 1;
   utterance.volume = 0.8;
-  
-  // Wait for voices to load and find English voice
+
+  // Wait for voices to load and find the best voice for the language
   const setVoice = () => {
     const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(voice => 
-      voice.lang.includes('en') && 
+
+    // Try to find a voice that matches the language
+    const languageVoice = voices.find(voice =>
+      voice.lang === voiceLocale || voice.lang.startsWith(languageCode)
+    ) || voices.find(voice =>
+      voice.lang.includes(languageCode) &&
       (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-    ) || voices.find(voice => voice.lang.includes('en')) || voices[0];
-    
-    if (englishVoice) {
-      utterance.voice = englishVoice;
+    ) || voices.find(voice =>
+      voice.lang.includes(languageCode)
+    );
+
+    // Fallback to English if no matching voice found
+    const fallbackVoice = voices.find(voice => voice.lang.includes('en')) || voices[0];
+
+    if (languageVoice) {
+      utterance.voice = languageVoice;
+      console.log(`Speaking in ${languageCode} using voice: ${languageVoice.name}`);
+    } else if (fallbackVoice) {
+      utterance.voice = fallbackVoice;
+      console.log(`No ${languageCode} voice found, using fallback: ${fallbackVoice.name}`);
     }
-    
+
     window.speechSynthesis.speak(utterance);
   };
 
@@ -394,6 +422,11 @@ export const speakInEnglish = async (text: string) => {
   } else {
     window.speechSynthesis.addEventListener('voiceschanged', setVoice, { once: true });
   }
+};
+
+// TTS function that always uses English (kept for backward compatibility)
+export const speakInEnglish = async (text: string) => {
+  return speakInLanguage(text, 'en');
 };
 
 export default uiTranslations;

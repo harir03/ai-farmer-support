@@ -4,11 +4,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { componentClasses } from '@/lib/theme';
 import { StatsCard, InfoCard, InstructionCard } from '@/components/ui/Cards';
 import { FarmService, FarmData } from '@/lib/farmService';
+import { useLanguage } from '@/contexts/LanguageContext';
 import AreaCalc from './AreaCalc';
 
 function calculatePerimeter(coordinates: Array<{ lat: number; lng: number }>): number {
   if (coordinates.length < 2) return 0;
-  
+
   let perimeter = 0;
   for (let i = 0; i < coordinates.length; i++) {
     const current = coordinates[i];
@@ -31,14 +32,14 @@ function haversineDistance(coord1: { lat: number; lng: number }, coord2: { lat: 
 
 function getPolygonCenter(coordinates: Array<{ lat: number; lng: number }>): { lat: number; lng: number } {
   if (coordinates.length === 0) return { lat: 0, lng: 0 };
-  
+
   let sumLat = 0;
   let sumLng = 0;
   coordinates.forEach(coord => {
     sumLat += coord.lat;
     sumLng += coord.lng;
   });
-  
+
   return {
     lat: sumLat / coordinates.length,
     lng: sumLng / coordinates.length
@@ -51,7 +52,8 @@ export default function MyFarmPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [soilDataLoading, setSoilDataLoading] = useState<string[]>([]);
-  const [soilDataCache, setSoilDataCache] = useState<{[key: string]: any}>({});
+  const [soilDataCache, setSoilDataCache] = useState<{ [key: string]: any }>({});
+  const { language } = useLanguage();
   const [newFarmData, setNewFarmData] = useState({
     name: '',
     cropType: 'Mixed Crops',
@@ -64,34 +66,51 @@ export default function MyFarmPage() {
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [voiceLoading, setVoiceLoading] = useState(true);
 
-  // Voice synthesis function
+  // Language code to voice locale mapping
+  const languageVoiceMap: Record<string, string> = {
+    'en': 'en-US',
+    'hi': 'hi-IN',
+    'bn': 'bn-IN',
+    'te': 'te-IN',
+    'mr': 'mr-IN',
+    'ta': 'ta-IN',
+  };
+
+  // Voice synthesis function (uses selected language)
   const speakText = (text: string) => {
     if (!isVoiceEnabled || !window.speechSynthesis) return;
-    
+
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-    
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
+    const voiceLocale = languageVoiceMap[language] || 'en-US';
+    utterance.lang = voiceLocale;
     utterance.rate = 0.8; // Slightly slower for instructions
     utterance.pitch = 1;
     utterance.volume = 0.9;
-    
-    // Try to find a clear English voice
+
+    // Try to find a voice for the selected language
     const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(voice => 
-      voice.lang.includes('en') && 
+    const languageVoice = voices.find(voice =>
+      voice.lang === voiceLocale || voice.lang.startsWith(language)
+    ) || voices.find(voice =>
+      voice.lang.includes(language) &&
       (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-    );
-    if (englishVoice) {
-      utterance.voice = englishVoice;
+    ) || voices.find(voice => voice.lang.includes('en'));
+
+    if (languageVoice) {
+      utterance.voice = languageVoice;
     }
-    
+
     window.speechSynthesis.speak(utterance);
   };
 
-  // Generate farm instructions
+  // Generate farm instructions (uses selected language)
   const generateFarmInstructions = () => {
+    if (language === 'hi') {
+      return "मेरे खेत में आपका स्वागत है! अपने खेत का क्षेत्रफल जानने के लिए, 'मेरा स्थान खोजें' पर क्लिक करें, फिर 4 सेकंड इंतजार करें, और फिर 'सीमा बनाएं' पर क्लिक करें। क्षेत्र बनाने के लिए बिंदुओं पर क्लिक करें और क्षेत्र को चिह्नित करने के लिए पहले बिंदु पर क्लिक करें।";
+    }
     return "Welcome to My Farm! To find the area of your field, click on 'Find My Location', then wait for 4 seconds, and then click 'Draw Boundary'. Click on the dots to create the area and click on the first point to finish marking the area.";
   };
 
@@ -117,7 +136,7 @@ export default function MyFarmPage() {
       try {
         const userFarms = await FarmService.getUserFarms();
         setFarms(userFarms);
-        
+
         // Auto-start mapping if no farms exist
         if (userFarms.length === 0) {
           setAutoStartMapping(true);
@@ -228,7 +247,7 @@ export default function MyFarmPage() {
         });
       } else {
         const farmName = newFarmData.name.trim() || `Farm ${farms.length + 1}`;
-        
+
         const farmId = await addFarm({
           name: farmName,
           cropType: 'Mixed Crops',
@@ -242,11 +261,11 @@ export default function MyFarmPage() {
           center,
           isActive: true,
         });
-        
+
         if (center && farmId) {
           fetchSoilData(farmId, center.lat, center.lng);
         }
-        
+
         setShowCreateForm(false);
         setShowMap(false);
         setNewFarmData({
@@ -289,7 +308,7 @@ export default function MyFarmPage() {
 
   const fetchSoilData = async (farmId: string, lat: number, lng: number) => {
     const cacheKey = `${lat.toFixed(6)}_${lng.toFixed(6)}`;
-    
+
     if (soilDataCache[cacheKey]) {
       return soilDataCache[cacheKey];
     }
@@ -297,47 +316,47 @@ export default function MyFarmPage() {
     try {
       setSoilDataLoading(prev => [...prev, farmId]);
       console.log(`Fetching soil data for coordinates: ${lat}, ${lng}`);
-      
+
       const apiUrl = `/api/soil-info?lat=${lat}&lon=${lng}`;
       console.log('Calling backend API:', apiUrl);
-      
+
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         }
       });
-      
+
       console.log('Backend API response status:', response.status);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Backend API Error Response:', errorText);
-        
+
         if (response.status === 404) {
           console.log('ISRIC data not available for this location, using regional estimates');
           const simulatedData = generateSimulatedSoilData(lat, lng);
-          
+
           setSoilDataCache(prev => ({
             ...prev,
             [cacheKey]: simulatedData
           }));
-          
+
           return simulatedData;
         }
-        
+
         throw new Error(`Backend API request failed: ${response.status} ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       console.log('Soil data received from backend:', data);
-      
+
       if (data.is_simulated) {
         console.log('Using estimated soil data for this location');
       } else {
         console.log('ISRIC SoilGrids data retrieved successfully');
       }
-      
+
       const processedData = {
         clay: data.texture?.clay_percentage || null,
         sand: data.texture?.sand_percentage || null,
@@ -354,16 +373,16 @@ export default function MyFarmPage() {
         isSimulated: data.is_simulated || false,
         note: data.note || null
       };
-      
+
       setSoilDataCache(prev => ({
         ...prev,
         [cacheKey]: processedData
       }));
-      
+
       return processedData;
     } catch (error) {
       console.error('Error fetching soil data:', error);
-      
+
       const fallbackData = {
         clay: Math.floor(Math.random() * 40) + 20,
         sand: Math.floor(Math.random() * 40) + 20,
@@ -375,12 +394,12 @@ export default function MyFarmPage() {
         fetchedAt: new Date().toISOString(),
         isSimulated: true
       };
-      
+
       setSoilDataCache(prev => ({
         ...prev,
         [cacheKey]: fallbackData
       }));
-      
+
       return fallbackData;
     } finally {
       setSoilDataLoading(prev => prev.filter(id => id !== farmId));
@@ -423,43 +442,43 @@ export default function MyFarmPage() {
 
   const testDirectAPI = () => {
     console.log('Testing Backend Soil API...');
-    
+
     const testLat = 52.0907;
     const testLng = 5.1214;
-    
+
     const apiUrl = `/api/soil-info?lat=${testLat}&lon=${testLng}`;
     console.log('Test Backend API URL:', apiUrl);
-    
+
     fetch(apiUrl, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
       }
     })
-    .then(response => {
-      console.log('Test Response status:', response.status);
-      console.log('Test Response ok:', response.ok);
-      if (!response.ok) {
-        return response.text().then(text => {
-          throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-        });
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Test Backend API Success! Data:', data);
-      alert(`API test successful! 
+      .then(response => {
+        console.log('Test Response status:', response.status);
+        console.log('Test Response ok:', response.ok);
+        if (!response.ok) {
+          return response.text().then(text => {
+            throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Test Backend API Success! Data:', data);
+        alert(`API test successful! 
 Soil Type: ${data.texture?.classification?.type}
 Clay: ${data.texture?.clay_percentage}%
 Sand: ${data.texture?.sand_percentage}%
 Silt: ${data.texture?.silt_percentage}%
 pH: ${data.chemical_properties?.ph}
 Check console for full details.`);
-    })
-    .catch(error => {
-      console.error('Test Backend API Error:', error);
-      alert(`Backend API test failed: ${error.message}`);
-    });
+      })
+      .catch(error => {
+        console.error('Test Backend API Error:', error);
+        alert(`Backend API test failed: ${error.message}`);
+      });
   };
 
   return (
@@ -483,13 +502,16 @@ Check console for full details.`);
                 />
               </svg>
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4 tracking-tight">
-              My Farms
+              {language === 'hi' ? 'मेरे खेत' : 'My Farms'}
             </h1>
-            
+
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Comprehensive farm management with real-time monitoring, soil analysis, and intelligent insights
+              {language === 'hi'
+                ? 'रीयल-टाइम निगरानी, मिट्टी विश्लेषण, और बुद्धिमान अंतर्दृष्टि के साथ व्यापक खेत प्रबंधन'
+                : 'Comprehensive farm management with real-time monitoring, soil analysis, and intelligent insights'
+              }
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -500,9 +522,9 @@ Check console for full details.`);
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Draw New Area
+                {language === 'hi' ? 'नया क्षेत्र बनाएं' : 'Draw New Area'}
               </button>
-              
+
               {/* Voice Control Buttons */}
               <button
                 onClick={repeatInstructions}
@@ -512,16 +534,15 @@ Check console for full details.`);
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M6.586 17.414L4 20l2.586 2.586A2 2 0 008 21.172V18.828a2 2 0 00-.586-1.414zM4 12a8 8 0 008-8v0a8 8 0 118 8v0a8 8 0 01-8 8v0a8 8 0 00-8-8z" />
                 </svg>
-                🔊 Instructions
+                {language === 'hi' ? '🔊 निर्देश' : '🔊 Instructions'}
               </button>
-              
+
               <button
                 onClick={toggleVoice}
-                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 hover:scale-105 shadow-lg border flex items-center gap-2 ${
-                  isVoiceEnabled 
-                    ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-600 dark:text-orange-300 border-orange-300/20' 
-                    : 'bg-gray-500/20 hover:bg-gray-500/30 text-gray-600 dark:text-gray-300 border-gray-300/20'
-                }`}
+                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 hover:scale-105 shadow-lg border flex items-center gap-2 ${isVoiceEnabled
+                  ? 'bg-orange-500/20 hover:bg-orange-500/30 text-orange-600 dark:text-orange-300 border-orange-300/20'
+                  : 'bg-gray-500/20 hover:bg-gray-500/30 text-gray-600 dark:text-gray-300 border-gray-300/20'
+                  }`}
                 title={isVoiceEnabled ? 'Disable voice instructions' : 'Enable voice instructions'}
               >
                 {isVoiceEnabled ? (
@@ -535,13 +556,6 @@ Check console for full details.`);
                   </svg>
                 )}
                 {isVoiceEnabled ? 'Voice ON' : 'Voice OFF'}
-              </button>
-              <button
-                onClick={testDirectAPI}
-                className="bg-white/80 backdrop-blur-lg hover:bg-white text-blue-600 px-6 py-4 text-lg font-semibold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg border border-blue-200 hover:border-blue-300"
-                title="Test Backend Soil API"
-              >
-                Test Soil API
               </button>
               <button
                 onClick={testDirectAPI}
@@ -899,7 +913,7 @@ Check console for full details.`);
                             ) : (() => {
                               const cacheKey = `${farm.center.lat.toFixed(6)}_${farm.center.lng.toFixed(6)}`;
                               const soilData = soilDataCache[cacheKey];
-                              
+
                               if (!soilData) {
                                 return (
                                   <div className="space-y-2">
@@ -927,7 +941,7 @@ Check console for full details.`);
                                       {soilData.textureClass}
                                     </span>
                                   </div>
-                                  
+
                                   <div className="grid grid-cols-3 gap-2 text-xs">
                                     <div className="bg-yellow-50 p-2 rounded text-center">
                                       <div className="font-medium text-yellow-700">Clay</div>
@@ -942,7 +956,7 @@ Check console for full details.`);
                                       <div className="text-blue-600">{soilData.silt || '--'}%</div>
                                     </div>
                                   </div>
-                                  
+
                                   <div className="grid grid-cols-2 gap-2 text-xs mt-2">
                                     <div className="flex justify-between">
                                       <span className="text-gray-600">pH:</span>
@@ -957,7 +971,7 @@ Check console for full details.`);
                                       </span>
                                     </div>
                                   </div>
-                                  
+
                                   <div className="text-xs mt-2">
                                     <div className="bg-green-50 px-2 py-1 rounded border-l-2 border-green-300">
                                       <span className="text-green-600 font-medium">
@@ -989,14 +1003,14 @@ Check console for full details.`);
                             {farm.coordinates && farm.coordinates.length > 0 && (
                               <button
                                 onClick={() => {
-                                  const coordsText = farm.coordinates.map((coord, index) => 
+                                  const coordsText = farm.coordinates.map((coord, index) =>
                                     `Point ${index + 1}: ${coord.lat.toFixed(8)}, ${coord.lng.toFixed(8)}`
                                   ).join('\n');
-                                  const centerText = farm.center ? 
-                                    `Center: ${farm.center.lat.toFixed(8)}, ${farm.center.lng.toFixed(8)}` : 
+                                  const centerText = farm.center ?
+                                    `Center: ${farm.center.lat.toFixed(8)}, ${farm.center.lng.toFixed(8)}` :
                                     'Center: Not calculated';
                                   const fullText = `${farm.name}\n${centerText}\n\nBoundary Points:\n${coordsText}`;
-                                  
+
                                   navigator.clipboard.writeText(fullText).then(() => {
                                     alert('Coordinates copied to clipboard!');
                                   }).catch(() => {
