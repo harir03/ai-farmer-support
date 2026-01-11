@@ -1,0 +1,74 @@
+[
+  {
+    "strategy_id": "pcf-001",
+    "strategy_name": "Paddy-cum-Fish Culture",
+    "farming_type": "Integrated Farming",
+    "crops_main": ["Paddy", "Rice"],
+    "crops_secondary": ["Rohu Fish", "Catla Fish", "Mrigal Fish"],
+    "investment_cost": 150000,
+    "estimated_profit_net": 85000,
+    "roi_percentage": 56.7,
+    "key_risk_factors": ["Water management", "Fish disease", "Market price fluctuation"],
+    "ideal_soil_types": ["Clay loam", "Heavy clay", "Waterlogged soil"]
+  },
+  {
+    "strategy_id": "wmb-002",
+    "strategy_name": "Wheat-Mustard with Mango Boundary Planting",
+    "farming_type": "Boundary Planting",
+    "crops_main": ["Wheat", "Mustard"],
+    "crops_secondary": ["Mango"],
+    "investment_cost": 85000,
+    "estimated_profit_net": 62000,
+    "roi_percentage": 72.9,
+    "key_risk_factors": ["Weather dependency", "Pest attacks", "Soil fertility decline"],
+    "ideal_soil_types": ["Loamy soil", "Sandy loam", "Well-drained soil"]
+  },
+  {
+    "strategy_id": "hv-003",
+    "strategy_name": "Organic Vegetable Farming with Drip Irrigation",
+    "farming_type": "High-Value",
+    "crops_main": ["Tomato", "Capsicum", "Cucumber"],
+    "crops_secondary": ["Basil", "Mint"],
+    "investment_cost": 200000,
+    "estimated_profit_net": 180000,
+    "roi_percentage": 90.0,
+    "key_risk_factors": ["High initial investment", "Technical expertise needed", "Market access"],
+    "ideal_soil_types": ["Sandy loam", "Well-drained soil", "Rich organic matter"]
+  },
+  {
+    "strategy_id": "if-004",
+    "strategy_name": "Sugarcane with Turmeric Intercropping",
+    "farming_type": "Integrated Farming",
+    "crops_main": ["Sugarcane"],
+    "crops_secondary": ["Turmeric", "Ginger"],
+    "investment_cost": 120000,
+    "estimated_profit_net": 95000,
+    "roi_percentage": 79.2,
+    "key_risk_factors": ["Long gestation period", "Water requirement", "Processing facilities"],
+    "ideal_soil_types": ["Deep loamy soil", "Well-drained", "Rich in organic matter"]
+  },
+  {
+    "strategy_id": "bp-005",
+    "strategy_name": "Cotton with Coconut Boundary System",
+    "farming_type": "Boundary Planting",
+    "crops_main": ["Cotton"],
+    "crops_secondary": ["Coconut", "Groundnut"],
+    "investment_cost": 95000,
+    "estimated_profit_net": 58000,
+    "roi_percentage": 61.1,
+    "key_risk_factors": ["Bollworm attacks", "Market volatility", "Climate sensitivity"],
+    "ideal_soil_types": ["Black cotton soil", "Well-drained", "Medium to heavy textured"]
+  },
+  {
+    "strategy_id": "hv-006",
+    "strategy_name": "Saffron Cultivation with Protected Environment",
+    "farming_type": "High-Value",
+    "crops_main": ["Saffron"],
+    "crops_secondary": ["Rose", "Lavender"],
+    "investment_cost": 350000,
+    "estimated_profit_net": 420000,
+    "roi_percentage": 120.0,
+    "key_risk_factors": ["Climate specific", "High technical skill", "Specialized harvesting"],
+    "ideal_soil_types": ["Well-drained sandy loam", "Slightly alkaline", "Good drainage"]
+  }
+]
