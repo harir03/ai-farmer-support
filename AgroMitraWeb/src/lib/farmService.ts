@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL
+  ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`
+  : 'http://localhost:5000/api';
 
 export interface FarmData {
   id?: string;
@@ -45,7 +47,7 @@ export class FarmService {
       const userId = this.getUserId();
       const key = `farms_${userId}`;
       const farmsData = localStorage.getItem(key);
-      
+
       if (farmsData) {
         const farms = JSON.parse(farmsData);
         return farms.filter((farm: FarmData) => farm.isActive);
@@ -71,7 +73,7 @@ export class FarmService {
     try {
       const userId = this.getUserId();
       const farms = await this.getUserFarms();
-      
+
       const newFarm: FarmData = {
         ...farmData,
         id: crypto.randomUUID(),
@@ -81,10 +83,10 @@ export class FarmService {
       };
 
       farms.push(newFarm);
-      
+
       const key = `farms_${userId}`;
       localStorage.setItem(key, JSON.stringify(farms));
-      
+
       return newFarm;
     } catch (error) {
       console.error('Error creating farm:', error);
@@ -96,7 +98,7 @@ export class FarmService {
     try {
       const userId = this.getUserId();
       const farms = await this.getUserFarms();
-      
+
       const farmIndex = farms.findIndex(farm => farm.id === farmId);
       if (farmIndex === -1) {
         throw new Error('Farm not found');
@@ -110,7 +112,7 @@ export class FarmService {
 
       const key = `farms_${userId}`;
       localStorage.setItem(key, JSON.stringify(farms));
-      
+
       return farms[farmIndex];
     } catch (error) {
       console.error('Error updating farm:', error);
@@ -122,7 +124,7 @@ export class FarmService {
     try {
       const userId = this.getUserId();
       const farms = await this.getUserFarms();
-      
+
       const farmIndex = farms.findIndex(farm => farm.id === farmId);
       if (farmIndex === -1) {
         throw new Error('Farm not found');
@@ -164,7 +166,7 @@ export class FarmService {
   }> {
     try {
       const farms = await this.getUserFarms();
-      
+
       // Format data for the voice assistant with all necessary information
       const farmInfo = farms.map(farm => ({
         ...farm,
@@ -175,7 +177,7 @@ export class FarmService {
       const summary = {
         totalFarms: farmInfo.length,
         totalArea: farmInfo.reduce((sum, farm) => sum + (farm.totalArea || 0), 0),
-        avgFarmSize: farmInfo.length > 0 ? 
+        avgFarmSize: farmInfo.length > 0 ?
           (farmInfo.reduce((sum, farm) => sum + (farm.totalArea || 0), 0) / farmInfo.length) : 0,
         cropTypes: [...new Set(farmInfo.map(farm => farm.cropType).filter(Boolean))],
         soilTypes: [...new Set(farmInfo.map(farm => farm.soilType).filter(Boolean))],

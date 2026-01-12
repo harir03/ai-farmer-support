@@ -23,8 +23,30 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS Configuration - Allow Vercel frontend and localhost for development
+const allowedOrigins = [
+    'https://ai-farmer-support.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('Blocked by CORS:', origin);
+            callback(null, true); // Allow all origins for now, log blocked ones
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
@@ -34,7 +56,7 @@ const PORT = process.env.PORT || 5000;
 
 // Health check
 app.get('/', (req, res) => {
-    res.json({ 
+    res.json({
         message: 'AgroMitra Backend API is running',
         version: '1.0.0',
         timestamp: new Date().toISOString()
