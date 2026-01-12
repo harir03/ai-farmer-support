@@ -186,6 +186,7 @@ export default function IntegratedVoiceAgent({ userContext = defaultUserContext 
   const handleSelectLanguage = (langCode: string) => {
     if (downloadedLanguages.includes(langCode)) {
       setLanguage(langCode);
+      // Update global language for UI (supports en/hi, others use en as fallback for UI but voice uses the actual language)
       if (langCode === 'en' || langCode === 'hi') {
         setGlobalLanguage(langCode as 'en' | 'hi');
       }
@@ -193,8 +194,26 @@ export default function IntegratedVoiceAgent({ userContext = defaultUserContext 
         preferences: { ...userContext.preferences, language: langCode }
       });
       setShowLanguageMenu(false);
+
+      // Speak a confirmation in the selected language
+      const confirmMessages: Record<string, string> = {
+        'en': 'Language changed to English',
+        'hi': 'भाषा हिंदी में बदल गई',
+        'bn': 'ভাষা বাংলায় পরিবর্তিত হয়েছে',
+        'te': 'భాష తెలుగులోకి మార్చబడింది',
+        'ta': 'மொழி தமிழாக மாற்றப்பட்டது',
+        'mr': 'भाषा मराठीत बदलली',
+      };
+      speakInLanguage(confirmMessages[langCode] || confirmMessages['en'], langCode);
     }
   };
+
+  // Sync local language with global uiLanguage on mount
+  useEffect(() => {
+    if (uiLanguage !== language) {
+      setLanguage(uiLanguage);
+    }
+  }, [uiLanguage]);
 
   // LiveKit connected view
   if (connectionDetails) {

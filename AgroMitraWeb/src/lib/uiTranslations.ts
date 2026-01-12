@@ -44,6 +44,7 @@ const englishUI: UITranslations = {
     schemes: "Schemes",
     myFarm: "My Farm",
     marketPrices: "Market Prices",
+    diseaseDetection: "Crop Doctor",
     profile: "Profile",
     settings: "Settings",
     logout: "Logout"
@@ -205,6 +206,7 @@ const hindiUI: UITranslations = {
     schemes: "योजनाएं",
     myFarm: "मेरा फार्म",
     marketPrices: "बाज़ार की कीमतें",
+    diseaseDetection: "फसल डॉक्टर",
     profile: "प्रोफ़ाइल",
     settings: "सेटिंग्स",
     logout: "लॉगआउट"
