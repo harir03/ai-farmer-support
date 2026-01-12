@@ -1,284 +1,306 @@
-# 🌾 AI-FarmCare DevTree
+# 🌾 AgroMitra - AI-Powered Farming Companion
 
+<div align="center">
 
+![AgroMitra Logo](./AgroMitraWeb/public/logo.png)
 
-**An AI-powered comprehensive farming ecosystem built for Hacktron at Infostav**
+**Your Intelligent Agricultural Partner with Regional Voice AI**
 
-A complete agricultural management platform featuring voice-enabled AI assistance, mobile applications, and robust backend services to empower farmers with intelligent decision-making tools.
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Vercel-000?style=for-the-badge&logo=vercel)](https://ai-farmer-support.vercel.app)
+[![Backend API](https://img.shields.io/badge/⚡_API-Render-46E3B7?style=for-the-badge&logo=render)](https://ai-farmer-support.onrender.com)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/harir03/ai-farmer-support)
 
----
-
-##Design
-<img width="1728" height="990" alt="Screenshot 2025-10-12 at 4 27 04 AM" src="https://github.com/user-attachments/assets/4e7ddb3e-3103-450a-985a-00981360455f" />  
----
-![WhatsApp Image 2025-10-12 at 03 19 22](https://github.com/user-attachments/assets/3fa84f1d-4535-4922-92b2-307033830e8d) || ![WhatsApp Image 2025-10-12 at 03 19 22](https://github.com/user-attachments/assets/ac845492-33f8-415a-b784-864cd6b73fd4)
-
-
-
-## 🚀 Project Overview
-
-AI-FarmCare DevTree is a multi-platform agricultural solution consisting of:
-
-1. **🌐 AgroMitraWeb** - Next.js web application with voice-powered farm management
-2. **📱 AgroMitraApp** - React Native mobile application for on-the-go farming
-3. **🤖 AI Voice Agent** - Intelligent farming companion with real-time voice interaction
-4. **⚡ Backend API** - Express.js backend with comprehensive farming data management
+</div>
 
 ---
 
-## 🌟 Key Features
+## 🎯 Project Overview
 
-### 🎤 **AI Voice Assistant**
-- **Multi-language Support**: English, Hindi, Spanish
-- **Real-time Voice Interaction**: Powered by LiveKit and Google AI
-- **Smart Navigation**: Voice commands for seamless app navigation
-- **Farming Intelligence**: Weather updates, crop recommendations, market prices
+**AgroMitra** (अग्रोमित्र - "Farming Friend") is a comprehensive AI-powered agricultural platform designed specifically for Indian farmers. It features **real-time voice interaction in 9+ regional Indian languages**, making advanced farming technology accessible to everyone regardless of literacy or tech-savviness.
 
-### 🌱 **Farm Management**
-- **Digital Farm Mapping**: GPS-based area calculation and field management
+### 🏆 Built for IGNITE Hackathon
+
+---
+
+## ✨ Key Features
+
+### 🗣️ **Regional Voice AI Assistant**
+- **9+ Indian Languages**: Hindi, Bengali, Telugu, Tamil, Marathi, Gujarati, Kannada, Malayalam, Punjabi
+- **Real-time Voice Interaction**: Powered by LiveKit for seamless communication
+- **Smart Navigation**: Voice commands for app navigation
+- **Contextual Farming Advice**: Weather, crops, market prices in your language
+
+### 🩺 **AI Crop Disease Detection** (NEW!)
+- **Camera-Based Diagnosis**: Take a photo of your crop to detect diseases
+- **Real-Time Analysis**: AI-powered detection in under 5 seconds
+- **50+ Diseases**: Fungal, bacterial, viral, pest damage, nutrient deficiencies
+- **Treatment Recommendations**: Both chemical and organic remedies
+- **Hindi Voice Announcements**: Results spoken in your language
+
+### 🌾 **Digital Farm Management**
+- **GPS Farm Mapping**: Draw and calculate field boundaries using Google Maps
+- **Soil Analysis**: Real-time soil health data via SoilGrids API
 - **Crop Lifecycle Tracking**: From planting to harvest monitoring
-- **Task Management**: Automated scheduling and reminders
-- **Soil Analysis**: Real-time soil health monitoring and recommendations
+- **Task Management**: Smart scheduling with voice reminders
 
-### 📊 **Data & Analytics**
-- **Weather Integration**: Real-time weather data with farming-specific advice
-- **Market Prices**: Live commodity prices with trend analysis
-- **Disease Detection**: AI-powered plant disease diagnosis using Susya API
-- **Government Schemes**: Access to agricultural subsidies and programs
+### 📊 **Market Intelligence**
+- **Live Commodity Prices**: Real-time pricing from Indian mandis
+- **Price Alerts**: Get notified when prices hit your targets
+- **Trend Analysis**: Historical data and forecasts
+- **Voice Updates**: Market conditions announced in regional language
 
-### 👥 **Community Features**
-- **Farmer Network**: Connect with local farming communities
-- **Knowledge Sharing**: Post questions, share experiences, and learn
-- **Expert Consultation**: Access to agricultural experts and advisors
+### 👥 **Farmer Community**
+- **Knowledge Sharing**: Post questions and share experiences
+- **Local Groups**: Connect with farmers in your region
+- **Expert Access**: Get advice from agricultural experts
+- **Government Schemes**: Information about subsidies and programs
 
 ---
 
-## 🏗️ Project Structure
+## 🖼️ Screenshots
+
+### Web Application
+<img width="100%" alt="AgroMitra Home" src="https://github.com/user-attachments/assets/4e7ddb3e-3103-450a-985a-00981360455f" />
+
+### Mobile Application
+<p float="left">
+<img width="45%" alt="Mobile Screenshot 1" src="https://github.com/user-attachments/assets/3fa84f1d-4535-4922-92b2-307033830e8d" />
+<img width="45%" alt="Mobile Screenshot 2" src="https://github.com/user-attachments/assets/ac845492-33f8-415a-b784-864cd6b73fd4" />
+</p>
+
+---
+
+## 🏗️ Architecture
 
 ```
-AI-FarmCare_DevTree/
-├── 🌐 AgroMitraWeb/          # Next.js Web Application
+AgroMitra/
+├── 🌐 AgroMitraWeb/          # Next.js 15 Web Application
 │   ├── src/app/              # App Router pages
+│   │   ├── page.tsx          # Home with Voice AI
+│   │   ├── tasks/            # Task management
+│   │   ├── community/        # Farmer community
+│   │   ├── my-farm/          # Farm mapping & management
+│   │   ├── market-prices/    # Live market data
+│   │   └── disease-detection/# AI crop doctor 🆕
 │   ├── src/components/       # Reusable UI components
-│   ├── src/lib/             # Business logic & utilities
-│   └── public/              # Static assets
+│   ├── src/lib/              # Business logic & utilities
+│   └── src/contexts/         # Language & state management
+│
 ├── 📱 AgroMitraApp/          # React Native Mobile App
-│   ├── app/                 # Expo Router navigation
-│   ├── components/          # Mobile UI components
-│   └── assets/              # Mobile assets
-├── 🤖 AIVoiceAgent/          # Python AI Voice Assistant
-│   ├── agent.py             # Main agent logic
-│   ├── tools.py             # Farming tools & functions
-│   └── rag_system.py        # Knowledge retrieval system
+│   ├── app/                  # Expo Router navigation
+│   ├── components/           # Mobile UI components
+│   └── assets/               # Mobile assets
+│
+├── 🤖 AIVoiceAgent/          # Python AI Voice Backend
+│   ├── agent.py              # Main Livekit agent
+│   ├── tools.py              # Farming tools & functions
+│   └── prompts.py            # System prompts & language support
+│
 └── ⚡ Backend/               # Express.js API Server
-    ├── src/controllers/     # API controllers
-    ├── src/models/          # Database models
-    └── src/routes/          # API routes
+    ├── src/routes/           # API endpoints
+    ├── src/models/           # MongoDB models
+    └── src/controllers/      # Business logic
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Live Deployment
+
+| Service | URL | Status |
+|---------|-----|--------|
+| 🌐 **Frontend** | [ai-farmer-support.vercel.app](https://ai-farmer-support.vercel.app) | ✅ Live |
+| ⚡ **Backend API** | [ai-farmer-support.onrender.com](https://ai-farmer-support.onrender.com) | ✅ Live |
+
+---
+
+## 🛠️ Tech Stack
+
+### **Frontend**
+| Technology | Purpose |
+|------------|---------|
+| Next.js 15 | React framework with App Router |
+| TypeScript | Type safety |
+| Tailwind CSS | Styling |
+| LiveKit React | Voice AI integration |
+| Google Maps API | Farm mapping |
+| Web Speech API | Text-to-Speech |
+
+### **Backend**
+| Technology | Purpose |
+|------------|---------|
+| Express.js | REST API |
+| MongoDB | Database |
+| JWT | Authentication |
+| LiveKit | Real-time voice |
+
+### **AI/ML**
+| Technology | Purpose |
+|------------|---------|
+| Google Gemini | Disease detection & analysis |
+| Plant.id API | Plant disease identification |
+| SoilGrids API | Soil data |
+| OpenWeatherMap | Weather data |
+
+---
+
+## 🌍 Language Support
+
+AgroMitra speaks your language! Full support for:
+
+| Language | Code | Voice TTS | UI Translation |
+|----------|------|-----------|----------------|
+| 🇺🇸 English | `en` | ✅ | ✅ |
+| 🇮🇳 Hindi (हिन्दी) | `hi` | ✅ | ✅ |
+| 🇮🇳 Bengali (বাংলা) | `bn` | ✅ | 🔄 |
+| 🇮🇳 Telugu (తెలుగు) | `te` | ✅ | 🔄 |
+| 🇮🇳 Tamil (தமிழ்) | `ta` | ✅ | 🔄 |
+| 🇮🇳 Marathi (मराठी) | `mr` | ✅ | 🔄 |
+| 🇮🇳 Gujarati (ગુજરાતી) | `gu` | ✅ | 🔄 |
+| 🇮🇳 Kannada (ಕನ್ನಡ) | `kn` | ✅ | 🔄 |
+| 🇮🇳 Malayalam (മലയാളം) | `ml` | ✅ | 🔄 |
+| 🇮🇳 Punjabi (ਪੰਜਾਬੀ) | `pa` | ✅ | 🔄 |
+
+---
+
+## 💻 Local Development
 
 ### Prerequisites
-- Node.js 18+ and npm
+- Node.js 18+
 - Python 3.8+ (for AI Voice Agent)
-- MongoDB (local or cloud)
-- Expo CLI (for mobile app)
+- MongoDB (local or Atlas)
+- Git
 
-### 1. Clone the Repository
+### 1️⃣ Clone Repository
 ```bash
-git clone https://github.com/your-username/AI-FarmCare_DevTree.git
-cd AI-FarmCare_DevTree
+git clone https://github.com/harir03/ai-farmer-support.git
+cd ai-farmer-support
 ```
 
-### 2. Setup Backend API
+### 2️⃣ Setup Backend
 ```bash
 cd Backend
 npm install
 cp .env.example .env
-# Configure your environment variables
+# Edit .env with your credentials
 npm run dev
 ```
-**Backend URL**: https://ai-farmcare-devtree.onrender.com/
 
-### 3. Setup Web Application
+### 3️⃣ Setup Frontend
 ```bash
 cd AgroMitraWeb
 npm install
 cp .env.example .env.local
-# Add your API keys
+# Edit .env.local with your API keys
 npm run dev
 ```
-**Web App**: http://localhost:3000
 
-### 4. Setup Mobile Application
+### 4️⃣ Setup Mobile App (Optional)
 ```bash
 cd AgroMitraApp
 npm install
 npx expo start
 ```
 
-### 5. Setup AI Voice Agent
+### 5️⃣ Setup AI Voice Agent (Optional)
 ```bash
 cd AIVoiceAgent
 pip install -r requirements.txt
 cp .env.example .env
-# Configure LiveKit and API keys
 python agent.py
 ```
 
 ---
 
-## 🛠️ Technology Stack
+## ⚙️ Environment Variables
 
-### **Frontend & Mobile**
-- **Web**: Next.js 14, TypeScript, Tailwind CSS
-- **Mobile**: React Native, Expo, NativeWind
-- **Voice**: Web Speech API, LiveKit Real-time Communication
-
-### **Backend & AI**
-- **API**: Express.js, MongoDB, JWT Authentication
-- **AI**: Google Gemini, OpenAI, RAG System
-- **Voice Agent**: Python, LiveKit, SentenceTransformers
-
-### **External APIs**
-- **Weather**: OpenWeatherMap API
-- **Soil Data**: SoilGrids API
-- **Disease Detection**: Susya API
-- **Maps**: Google Maps API
-
----
-
-## 🎯 Core Functionality
-
-### **Voice Commands Examples**
-```
-🗣️ "What's the weather like for my farm?"
-🗣️ "Show me crop recommendations for 5 acres"
-🗣️ "Check market prices for wheat"
-🗣️ "My tomato plants have yellow spots"
-🗣️ "Navigate to my tasks"
-🗣️ "मौसम कैसा है?" (Hindi: How's the weather?)
+### Frontend (.env.local)
+```env
+NEXT_PUBLIC_BACKEND_URL=https://ai-farmer-support.onrender.com
+NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-server.cloud
+LIVEKIT_API_KEY=your-api-key
+LIVEKIT_API_SECRET=your-api-secret
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-maps-key
+GEMINI_API_KEY=your-gemini-key
 ```
 
-### **API Endpoints**
-- **Authentication**: `/api/auth/register`, `/api/auth/login`
-- **Tasks**: `/api/tasks` (CRUD operations)
-- **Farm Management**: `/api/fields` (Farm field management)
-- **Community**: `/api/posts`, `/api/community` (Social features)
-- **Market Data**: `/api/market-prices` (Real-time pricing)
-
----
-
-## 🌍 Multi-language Support
-
-- **🇺🇸 English**: Complete functionality
-- **🇮🇳 Hindi (हिन्दी)**: Full localization for Indian farmers
-- **🇪🇸 Spanish (Español)**: Support for Spanish-speaking regions
-
----
-
-## 📱 Mobile Features
-
-- **Voice-First Interface**: Talk to your farming assistant
-- **Offline Task Management**: Work without internet connectivity
-- **Camera Integration**: Plant disease detection via camera
-- **GPS Integration**: Location-based farming recommendations
-- **Push Notifications**: Task reminders and weather alerts
-
----
-
-## 🤖 AI Capabilities
-
-### **Farming Intelligence**
-- Crop recommendation based on soil and climate
-- Disease diagnosis from symptoms or images
-- Weather-based farming advice
-- Market price predictions and trends
-
-### **Knowledge Base**
-- 200+ farming topics in RAG system
-- Government schemes and subsidies
-- Best practices and techniques
-- Community-driven knowledge sharing
-
----
-
-## 🧪 Testing & Development
-
-### **Backend Testing**
-```bash
-cd Backend
-npm test
-# API endpoints testing
-node test-api.js
-```
-
-### **Frontend Testing**
-```bash
-cd AgroMitraWeb
-npm run test
-npm run lint
-```
-
-### **AI Voice Agent Testing**
-```bash
-cd AIVoiceAgent
-python -m pytest tests/
+### Backend (.env)
+```env
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your-jwt-secret
+FRONTEND_URL=https://ai-farmer-support.vercel.app
+LIVEKIT_API_KEY=your-api-key
+LIVEKIT_API_SECRET=your-api-secret
 ```
 
 ---
 
-## 🚀 Deployment
+## 🎤 Voice Commands
 
-### **Production URLs**
-- **Backend API**: https://ai-farmcare-devtree.onrender.com/
-- **Web Application**: [Deploy on Vercel/Netlify]
-- **Mobile App**: [Deploy via Expo Application Services]
+Talk to AgroMitra in your language! Example commands:
 
-### **Environment Configuration**
-Each component includes `.env.example` files with required configuration variables.
+| English | Hindi |
+|---------|-------|
+| "What's the weather?" | "मौसम कैसा है?" |
+| "Show market prices" | "बाज़ार की कीमतें दिखाओ" |
+| "My tomato plants have spots" | "मेरे टमाटर की पत्तियों पर धब्बे हैं" |
+| "Navigate to my farm" | "मेरे खेत पर जाओ" |
+| "Create a new task" | "नया कार्य बनाओ" |
 
 ---
 
-## 👥 Contributing
+## 📱 Pages & Features
+
+| Page | Features |
+|------|----------|
+| **🏠 Home** | Voice AI agent, language selection, quick actions |
+| **📋 Tasks** | Create, manage, voice-announce farming tasks |
+| **👥 Community** | Social feed, farming groups, knowledge sharing |
+| **🌾 My Farm** | GPS mapping, soil data, crop management |
+| **📊 Market Prices** | Live prices, trends, alerts |
+| **🩺 Crop Doctor** | AI disease detection, treatment plans |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the individual component LICENSE files for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🏆 Hacktron @ Infostav
+## 👨‍💻 Team
 
-**Built with ❤️ for farmers worldwide**
+**Built with ❤️ for Indian Farmers**
 
-Empowering agriculture through intelligent voice technology and comprehensive farm management solutions.
-
-### **Team**
-- **Project**: AI-FarmCare DevTree
-- **Event**: Hacktron at Infostav
+- **Project**: AgroMitra - AI-Powered Farming Companion
+- **Hackathon**: IGNITE Hackathon
 - **Focus**: Agricultural Technology & AI Innovation
 
 ---
 
 ## 📞 Support
 
-For questions, issues, or contributions:
-- 📧 **Email**: [Your contact email]
-- 🐛 **Issues**: [GitHub Issues Link]
-- 📚 **Documentation**: See individual component READMEs
-- 🌐 **Demo**: [Live demo link if available]
+- 🐛 **Issues**: [GitHub Issues](https://github.com/harir03/ai-farmer-support/issues)
+- 📧 **Contact**: Create an issue for support
+- 🌐 **Demo**: [ai-farmer-support.vercel.app](https://ai-farmer-support.vercel.app)
 
-**Transforming Agriculture, One Voice Command at a Time** 🌾🤖
+---
 
+<div align="center">
 
+**🌾 Transforming Agriculture, One Voice Command at a Time 🤖**
+
+*"किसान की आवाज़, AgroMitra की जवाब"*
+
+</div>
