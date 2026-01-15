@@ -1,0 +1,96 @@
+﻿
+> aifarmcare@0.1.0 build
+> next build --turbopack
+
+node.exe :  ΓÜá Warning: 
+Next.js inferred your 
+workspace root, but it may 
+not be correct.
+At line:1 char:1
++ & "C:\nvm4w\nodejs\node_mo
+dules\nodejs/node.exe" 
+"C:\nvm4w\nodejs\nod ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: ( ΓÜá   
+  Warning: N...not be cor   
+ rect.:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+ We detected multiple 
+lockfiles and selected the 
+directory of C:\Users\harir\
+package-lock.json as the 
+root directory.
+ To silence this warning, 
+set `turbopack.root` in 
+your Next.js config, or 
+consider removing one of 
+the lockfiles if it's not 
+needed.
+   See https://nextjs.org/do
+cs/app/api-reference/config/
+next-config-js/turbopack#roo
+t-directory for more 
+information.
+ Detected additional 
+lockfiles: 
+   * C:\Users\harir\Download
+s\ALL\isdf design\ai farmer 
+support ignite\AgroMitraWeb\
+package-lock.json
+   * C:\Users\harir\Download
+s\ALL\isdf design\ai farmer 
+support 
+ignite\package-lock.json
+
+   Γû▓ Next.js 15.5.4 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Finished writing to disk in 240ms
+ Γ£ô Compiled successfully in 13.9s
+   Skipping linting
+   Checking validity of types ...
+Failed to compile.
+
+./src/components/RealTimeDet
+ection.tsx:284:42
+Type error: This comparison 
+appears to be unintentional 
+because the types '"mild" | 
+"moderate" | "severe"' and 
+'"healthy"' have no overlap.
+
+[0m [90m 282 |[39m
+ [90m 283 |[39m           
+      [90m// Voice alert 
+for disease detection[39m
+[31m[1m>[22m[39m[90m 
+284 |[39m                 
+[36mif[39m 
+(enableVoiceAlerts 
+[33m&&[39m 
+result[33m.[39mseverity 
+[33m!==[39m 
+[32m'healthy'[39m) {
+ [90m     |[39m           
+                            
+   [31m[1m^[22m[39m
+ [90m 285 |[39m           
+          [36mconst[39m 
+message [33m=[39m generate
+VoiceAlert(result)[33m;[39
+m
+ [90m 286 |[39m           
+          speakAlert(message
+)[33m;[39m
+ [90m 287 |[39m           
+      }[0m
+Next.js build worker exited 
+with code: 1 and signal: 
+null

@@ -280,8 +280,8 @@ export default function RealTimeDetection() {
                     timestamp: new Date()
                 }, ...prev].slice(0, 10)); // Keep last 10
 
-                // Voice alert for disease detection
-                if (enableVoiceAlerts && result.severity !== 'healthy') {
+                // Voice alert for disease detection (already inside block where severity !== 'healthy')
+                if (enableVoiceAlerts) {
                     const message = generateVoiceAlert(result);
                     speakAlert(message);
                 }
